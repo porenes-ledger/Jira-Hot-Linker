@@ -108,7 +108,7 @@ async function mainAsyncLocal() {
   }
 
   function getIssueMetaData(issueKey) {
-    return get(INSTANCE_URL + 'rest/api/2/issue/' + issueKey + '?fields=description,id,reporter,assignee,summary,attachment,comment,issuetype,status,priority&expand=renderedFields');
+    return get(INSTANCE_URL + 'rest/api/2/issue/' + issueKey + '?fields=description,id,reporter,assignee,summary,customfield_10028,attachment,comment,issuetype,status,priority,fixVersions&expand=renderedFields');
   }
 
   function getRelativeHref(href) {
@@ -233,6 +233,7 @@ async function mainAsyncLocal() {
         const key = keys[0].replace(" ", "-");
         (async function (cancelToken) {
           const issueData = await getIssueMetaData(key);
+          console.log(issueData);
           let pullRequests = [];
           try {
             const [githubPrs, githubEnterprisePrs] = await Promise.all([
@@ -263,6 +264,7 @@ async function mainAsyncLocal() {
             status: issueData.fields.status,
             priority: issueData.fields.priority,
             comment: issueData.fields.comment,
+            storypoints : issueData.fields.customfield_10028,
             reporter: issueData.fields.reporter,
             assignee: issueData.fields.assignee,
             comments,

@@ -19,7 +19,7 @@
         <% } %>
         <% if (priority) {%>
         <div title="Priority">
-            <img class="_JX_status_icon" src="<%- priority.iconUrl %>"> <%- priority.name %>
+            <img class="_JX_status_icon" src="<%- priority.iconUrl %>"> <%- priority.name %> <%= storypoints %>
         </div>
         <% } %>
         <% if (comment && comment.total) {%>
