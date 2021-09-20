@@ -79,7 +79,13 @@ async function mainAsyncLocal() {
 
   const config = await getConfig();
   const INSTANCE_URL = config.instanceUrl;
-  const jiraProjects = await get(await getInstanceUrl() + 'rest/api/2/project');
+  let jiraProjects = []
+  try {
+    
+    jiraProjects = await get(await getInstanceUrl() + 'rest/api/2/project');
+  } catch (error) {
+    console.error("Error getting projects :: "+error);
+  }
 
   if (!size(jiraProjects)) {
     console.log('Couldn\'t find any jira projects...');
@@ -103,6 +109,12 @@ async function mainAsyncLocal() {
     }).text();
   }
 
+  /**
+   * Retrieves PR raw data from Jira 🤔
+   * @param {String} issueId Id of the Jira Issue
+   * @param {*} applicationType Application Type 🤔
+   * @returns raw response
+   */
   function getPullRequestData(issueId, applicationType) {
     return get(INSTANCE_URL + 'rest/dev-status/1.0/issue/detail?issueId=' + issueId + '&applicationType=' + applicationType + '&dataType=pullrequest');
   }
@@ -175,6 +187,7 @@ async function mainAsyncLocal() {
     passiveCancel(0);
   }
 
+  // Hide the info on escape
   $(document.body).on('keydown', function (e) {
     // TODO: escape not captured in google docs
     const ESCAPE_KEY_CODE = 27;
@@ -209,6 +222,19 @@ async function mainAsyncLocal() {
       clearTimeout(hideTimeOut);
     }
   });
+
+  //integrate the Jra data in Github
+  let title = document.getElementsByClassName(".gh-header-show")
+  // let titleKey = getJiraKeys(getShallowText(title))
+  // if (!size(titleKey) && title.href) {
+  //       titleKey = getJiraKeys(getRelativeHref(title.href));
+  //     }
+  //     if (!size(titleKey) && title.parentElement.href) {
+  //       titleKey = getJiraKeys(getRelativeHref(title.parentElement.href));
+  //     }
+  $("<div>🚀"+title.getText()+"</div>").appendTo(".gh-header-show")
+
+  // finding potential Jira key on mouse move and display popup
   $(document.body).on('mousemove', debounce(function (e) {
     if (cancelToken.cancel) {
       return;
@@ -230,6 +256,8 @@ async function mainAsyncLocal() {
 
       if (size(keys)) {
         clearTimeout(hideTimeOut);
+        // if people use a space instead of `-`, replace it
+        //TODO improve with other tricks (especially when nothing is here)
         const key = keys[0].replace(" ", "-");
         (async function (cancelToken) {
           const issueData = await getIssueMetaData(key);
@@ -248,12 +276,15 @@ async function mainAsyncLocal() {
           if (cancelToken.cancel) {
             return;
           }
+
+          // retrieves the comment data, maybe we want to remove that
           let comments = '';
           if (issueData.fields.comment && issueData.fields.comment.total) {
             comments = issueData.fields.comment.comments.map(
               comment => comment.author.displayName + ':\n' + comment.body
             ).join('\n\n');
           }
+          // All the data to be used in the display
           const displayData = {
             urlTitle: key + ' ' + issueData.fields.summary,
             url: INSTANCE_URL + 'browse/' + key,

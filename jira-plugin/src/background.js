@@ -44,7 +44,7 @@ async function browserOnClicked (tab) {
         await executeScript(tab.id, {file: contentScript});
         await sendMessage(tab.id, {
           action: 'message',
-          message: 'Jira HotLinker enabled successfully !'
+          message: 'Ledger Jira Extension enabled successfully !'
         });
       }
       return;

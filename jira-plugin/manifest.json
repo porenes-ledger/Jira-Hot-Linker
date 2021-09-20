@@ -1,5 +1,5 @@
 {
-  "name": "Ledger Jira Helper",
+  "name": "Ledger Jira Extension",
   "description": "Ledger Jira, quick access to Jira metadata when hovering over ticket numbers!",
   "version": "1.0.0",
   "manifest_version": 2,
@@ -20,7 +20,7 @@
     "resources/*"
   ],
   "optional_permissions": [
-    "*://*/*"
+    "*://*/*", "file:///*"
   ],
   "permissions": [
     "activeTab",
